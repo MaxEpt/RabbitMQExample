@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "check-style": "phpcs --standard=PSR12 src/",
+    "fix-style": "phpcbf --standard=PSR12 src/"
+  },
+  "autoload": {
+    "psr-4": {
+      "RabbitMQExample\\": "src/"
+    }
+  },
+  "require": {
+    "php-amqplib/php-amqplib": "^3.2"
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "*"
+  }
+}
