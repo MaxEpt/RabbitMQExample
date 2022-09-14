@@ -6,10 +6,6 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 abstract class AbstractConsumer implements IConsumer
 {
-    public static $queueName;
-
-    public static $exchangeName;
-
     protected $rabbitConnection;
 
     private $declareExchangeStrategy;
@@ -71,10 +67,11 @@ abstract class AbstractConsumer implements IConsumer
 
             $is_dead = !$data
                 || !isset($data['start'])
-                || (time() - $data['start']) > 14400; // Если с момента публикации сообщения прошло больше 4 часов
+                || (time() - $data['start']) > Constants::MOVE_MESSAGE_TO_DEAD_TIME;
 
+            // Если с момента публикации сообщения прошло больше чем MOVE_MESSAGE_TO_DEAD_TIME секунд
+            // перемещаем сообщение в мертвую очередь
             if ($is_dead) {
-                //Удаляем сообщение
                 $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
                 $msg_dead = new AMQPMessage($msg->body, ['delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT]);
 
@@ -105,8 +102,8 @@ abstract class AbstractConsumer implements IConsumer
     {
         $this->declareExchangeStrategy->declare(
             $this->rabbitConnection->getChannel(),
-            static::$exchangeName,
-            static::$queueName
+            $this->getExchangeName(),
+            $this->getQueueName()
         );
     }
 }
